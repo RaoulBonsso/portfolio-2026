@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Portfolio — Raoul Bonsso
 
-## Getting Started
+Portfolio personnel, branché sur l'API GitHub en temps réel.
+Développeur full-stack en recherche d'alternance.
 
-First, run the development server:
+**En ligne :** https://portfolio-2026-lake-iota.vercel.app
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## Le parti pris
+
+Un portfolio peut affirmer n'importe quoi. Celui-ci essaie de n'afficher que
+des choses vérifiables :
+
+- **Les chiffres viennent de l'API GitHub**, pas d'un fichier de configuration.
+  Contributions, commits, pull requests, répartition des langages et calendrier
+  d'activité sont relus toutes les heures depuis `api.github.com/graphql`.
+- **La répartition des langages est calculée sur le volume réel de code** des
+  dépôts publics — pas sur une liste de logos choisie pour faire bonne impression.
+- **Chaque chiffre cité sur un projet provient de son dépôt.** Les nombres de
+  tests annoncés ont été obtenus en exécutant les suites concernées.
+- **Aucun fait de parcours n'est inventé.** Un champ non renseigné est masqué
+  (voir « Champs à compléter » ci-dessous), jamais rempli d'une valeur plausible.
+
+## Architecture
+
+```
+src/
+  app/
+    layout.tsx        polices, métadonnées, amorce du thème avant premier rendu
+    page.tsx          composant serveur, ISR horaire, assemble les sections
+  lib/
+    github.ts         couche réseau — `server-only`, une requête GraphQL
+    github-select.ts  transformation pure des données (testée)
+  content/
+    profile.ts        faits de profil, marqueur A_COMPLETER si inconnu
+    projects.ts       projets, chaque affirmation sourcée du dépôt
+    completude.ts     masque en production ce qui n'est pas renseigné
+  components/         sections, toutes en composant serveur sauf 4 îlots clients
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Deux règles structurent le découpage :
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Ce qui décide *quoi montrer* est séparé de ce qui *va chercher*.** La
+   sélection des dépôts, l'agrégation des langages et la construction du
+   calendrier sont des fonctions pures — donc testables sans réseau. La couche
+   réseau reste bête.
+2. **Le jeton ne quitte jamais le serveur.** `lib/github.ts` importe
+   `server-only` : une importation depuis un composant client fait échouer la
+   compilation. C'est une garantie du compilateur, pas une convention d'équipe.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Développement
 
-## Learn More
+```bash
+npm install
+npm run dev          # http://localhost:3000
+npm test             # 27 tests, logique de sélection et de complétude
+npx tsc --noEmit     # vérification de types
+npm run lint
+```
 
-To learn more about Next.js, take a look at the following resources:
+### Variable d'environnement
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Une seule, et elle est optionnelle en local :
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+GITHUB_TOKEN=...     # jeton GitHub à portée lecture publique
+```
 
-## Deploy on Vercel
+Sans elle, la page s'affiche et la section GitHub se replie proprement sur un
+état « flux indisponible » — elle ne plante pas. Le jeton n'est jamais commité :
+`.gitignore` couvre `.env*`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Champs à compléter
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Les informations de parcours non confirmées portent le marqueur `A_COMPLETER`
+dans `src/content/profile.ts`. Elles sont **masquées en production** et
+**listées en développement** dans un panneau d'audit en bas de page.
+
+| Champ | Ce qu'il attend |
+|---|---|
+| `formation.periode` | Années du Master 1 (ex. `2025 – 2026`) |
+| `formation.specialite` | Intitulé exact de la spécialité |
+| `disponibilite.rythme` | Rythme de l'alternance (ex. `3 semaines / 1 semaine`) |
+| `disponibilite.debut` | Date de démarrage souhaitée |
+| `disponibilite.zone` | Zone géographique / mobilité |
+| `contact.linkedin` | URL du profil LinkedIn |
+| `contact.cv` | URL du CV en PDF |
+
+Renseigner un champ suffit à le faire apparaître sur la page.
+
+## Licence
+
+MIT
