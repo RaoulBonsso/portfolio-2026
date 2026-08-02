@@ -32,7 +32,12 @@ const mono = JetBrains_Mono({
   display: "swap",
 });
 
-const SITE = "https://portfolio-raoul-bonsso.vercel.app";
+/**
+ * URL de production réelle. Elle sert de base à `metadataBase` : sans elle,
+ * les URL Open Graph et canoniques seraient relatives, donc inexploitables
+ * par LinkedIn ou par un aperçu de lien.
+ */
+const SITE = "https://portfolio-2026-lake-iota.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
