@@ -1,26 +1,274 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ==========================================================================
+   Système de jetons — « plan technique »
+   Registre : papier grège, encre carbone, bleu de méthylène, ocre de repère.
+   Les composants ne stylent JAMAIS à l'intérieur d'une media query :
+   ils passent par les jetons, redéfinis trois fois (préférence système,
+   puis les deux valeurs explicites du sélecteur de thème).
+   ========================================================================== */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root {
+  color-scheme: light;
+
+  --papier: #e9e8e2;
+  --plan: #f4f3ee;
+  --carbone: #14181b;
+  --graphite: #565f68;
+  --trait: #d2d1c8;
+  --trait-fort: #b9b8ad;
+  --methylene: #1a5b7a;
+  --methylene-doux: #dbe6ec;
+  --ocre: #9a6a24;
+  --libre: #2b6f4f;
+
+  --grille-0: #dedcd3;
+  --grille-1: #b9cdd8;
+  --grille-2: #85adc1;
+  --grille-3: #4a86a2;
+  --grille-4: #1a5b7a;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    color-scheme: dark;
+
+    --papier: #0e1216;
+    --plan: #151b21;
+    --carbone: #e4e8ea;
+    --graphite: #8a949e;
+    --trait: #222a31;
+    --trait-fort: #313b44;
+    --methylene: #6bb3d8;
+    --methylene-doux: #13303e;
+    --ocre: #d6a052;
+    --libre: #4bb387;
+
+    --grille-0: #1a2128;
+    --grille-1: #234a5e;
+    --grille-2: #2f7194;
+    --grille-3: #4b9ac0;
+    --grille-4: #7ec4e6;
   }
 }
 
+/* Le sélecteur explicite du basculeur doit gagner dans les deux sens. */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --papier: #e9e8e2;
+  --plan: #f4f3ee;
+  --carbone: #14181b;
+  --graphite: #565f68;
+  --trait: #d2d1c8;
+  --trait-fort: #b9b8ad;
+  --methylene: #1a5b7a;
+  --methylene-doux: #dbe6ec;
+  --ocre: #9a6a24;
+  --libre: #2b6f4f;
+
+  --grille-0: #dedcd3;
+  --grille-1: #b9cdd8;
+  --grille-2: #85adc1;
+  --grille-3: #4a86a2;
+  --grille-4: #1a5b7a;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --papier: #0e1216;
+  --plan: #151b21;
+  --carbone: #e4e8ea;
+  --graphite: #8a949e;
+  --trait: #222a31;
+  --trait-fort: #313b44;
+  --methylene: #6bb3d8;
+  --methylene-doux: #13303e;
+  --ocre: #d6a052;
+  --libre: #4bb387;
+
+  --grille-0: #1a2128;
+  --grille-1: #234a5e;
+  --grille-2: #2f7194;
+  --grille-3: #4b9ac0;
+  --grille-4: #7ec4e6;
+}
+
+@theme inline {
+  --color-papier: var(--papier);
+  --color-plan: var(--plan);
+  --color-carbone: var(--carbone);
+  --color-graphite: var(--graphite);
+  --color-trait: var(--trait);
+  --color-trait-fort: var(--trait-fort);
+  --color-methylene: var(--methylene);
+  --color-methylene-doux: var(--methylene-doux);
+  --color-ocre: var(--ocre);
+  --color-libre: var(--libre);
+
+  --font-display: var(--police-display), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--police-serif), ui-serif, Georgia, serif;
+  --font-mono: var(--police-mono), ui-monospace, SFMono-Regular, monospace;
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5.5rem;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--papier);
+  color: var(--carbone);
+  font-family: var(--police-serif), ui-serif, Georgia, serif;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Trame millimétrée très faible : le fond d'un plan, pas un motif décoratif. */
+.trame {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, var(--trait) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--trait) 1px, transparent 1px);
+  background-size: 96px 96px;
+  opacity: 0.45;
+  mask-image: radial-gradient(ellipse 110% 55% at 50% 0%, black, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse 110% 55% at 50% 0%, black, transparent 78%);
+}
+
+::selection {
+  background-color: var(--methylene);
+  color: var(--papier);
+}
+
+:focus-visible {
+  outline: 2px solid var(--methylene);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+/* ==========================================================================
+   Rôles typographiques
+   ========================================================================== */
+
+.titrage {
+  font-family: var(--police-display), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+  line-height: 1.04;
+}
+
+.etiquette {
+  font-family: var(--police-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--graphite);
+}
+
+.donnee {
+  font-family: var(--police-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.prose-technique {
+  max-width: 64ch;
+}
+
+/* ==========================================================================
+   Lien : le soulignement se dessine au survol, il ne s'allume pas.
+   ========================================================================== */
+
+.lien {
+  color: inherit;
+  text-decoration: none;
+  background-image: linear-gradient(var(--ocre), var(--ocre));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1px;
+  transition: background-size 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.lien:hover,
+.lien:focus-visible {
+  background-size: 100% 1px;
+}
+
+/* ==========================================================================
+   Mouvement
+   ========================================================================== */
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 640ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 640ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+[data-reveal="vu"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Séquence d'ouverture : les lignes du titre montent l'une après l'autre. */
+@keyframes lever {
+  from {
+    opacity: 0;
+    transform: translateY(0.42em);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.lever {
+  animation: lever 950ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes pulsation {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.pulsation {
+  animation: pulsation 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
 }
