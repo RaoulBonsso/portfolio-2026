@@ -1,6 +1,3 @@
-"use client";
-
-import { LazyMotion, domAnimation, m, useReducedMotion } from "motion/react";
 import {
   Boxes,
   Bot,
@@ -61,13 +58,12 @@ function chemin(s: Noeud, c: Noeud) {
 }
 
 export function SchemaLivraison({ tests }: { tests: string }) {
-  const reduit = useReducedMotion();
   const liste = noeuds(tests);
   const par = Object.fromEntries(liste.map((n) => [n.id, n]));
   const description = `Ma chaîne de livraison : spécifier (OpenAPI, zod), construire (Next.js, Node, Python), tester (${tests} tests), livrer (Docker, CI/CD), puis exploiter sur VPS Linux et Vercel, gérer les données (Firestore, PostgreSQL) et automatiser (n8n, LLM).`;
 
   return (
-    <LazyMotion features={domAnimation} strict>
+    <>
       {/* Écran large : le schéma complet. */}
       <svg
         viewBox="0 0 876 300"
@@ -87,18 +83,17 @@ export function SchemaLivraison({ tests }: { tests: string }) {
           return (
             <g key={`${s}${c}`}>
               <path d={d} fill="none" stroke="var(--trait-fort)" strokeWidth={1.5} />
-              <m.path
+              <path
                 d={d}
+                pathLength={1}
                 fill="none"
                 stroke="url(#trace-livraison)"
                 strokeWidth={2.25}
                 strokeLinecap="round"
-                initial={reduit ? false : { pathLength: 0, opacity: 0 }}
-                animate={{ pathLength: 1, opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.35 + Math.min(i, 3) * 0.3, ease: "easeInOut" }}
+                className="trace-dessin"
+                style={{ animationDelay: `${350 + Math.min(i, 3) * 300}ms` }}
               />
-              {!reduit && (
-                <circle r={3.5} fill="var(--ocre)" opacity={0}>
+              <circle r={3.5} fill="var(--ocre)" opacity={0} className="point-flux">
                   <set attributeName="opacity" to="1" begin={`${1.7 + Math.min(i, 3) * 0.35}s`} />
                   <animateMotion
                     dur="2.6s"
@@ -107,18 +102,12 @@ export function SchemaLivraison({ tests }: { tests: string }) {
                     path={d}
                   />
                 </circle>
-              )}
             </g>
           );
         })}
 
         {liste.map((n, i) => (
-          <m.g
-            key={n.id}
-            initial={reduit ? false : { opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 + Math.min(i, 4) * 0.22, duration: 0.45 }}
-          >
+          <g key={n.id} className="noeud-apparition" style={{ animationDelay: `${100 + Math.min(i, 4) * 220}ms` }}>
             <rect x={n.x} y={n.y} width={L} height={H} rx={13} fill="var(--plan)" stroke="var(--trait-fort)" />
             <foreignObject x={n.x} y={n.y} width={L} height={H}>
               <div className="flex h-full items-center gap-2.5 px-2.5">
@@ -134,7 +123,7 @@ export function SchemaLivraison({ tests }: { tests: string }) {
                 </span>
               </div>
             </foreignObject>
-          </m.g>
+          </g>
         ))}
       </svg>
 
@@ -142,12 +131,10 @@ export function SchemaLivraison({ tests }: { tests: string }) {
       <ol className="relative flex flex-col gap-2.5 sm:hidden" aria-label="Ma chaîne de livraison">
         <span aria-hidden="true" className="absolute top-4 bottom-4 left-[1.45rem] w-px bg-trait-fort" />
         {liste.map((n, i) => (
-          <m.li
+          <li
             key={n.id}
-            initial={reduit ? false : { opacity: 0, x: -6 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 + i * 0.08, duration: 0.4 }}
-            className="relative flex items-center gap-3 rounded-xl border border-trait bg-plan px-2.5 py-2"
+            style={{ animationDelay: `${100 + i * 80}ms` }}
+            className="lever relative flex items-center gap-3 rounded-xl border border-trait bg-plan px-2.5 py-2"
           >
             <span
               className="grid size-8 shrink-0 place-items-center rounded-lg"
@@ -159,9 +146,9 @@ export function SchemaLivraison({ tests }: { tests: string }) {
               <span className="text-sm font-semibold">{n.titre}</span>
               <span className="truncate text-xs text-graphite">{n.sous}</span>
             </span>
-          </m.li>
+          </li>
         ))}
       </ol>
-    </LazyMotion>
+    </>
   );
 }

@@ -335,6 +335,55 @@ a:focus-visible .lien,
   animation: flux 1.2s linear infinite;
 }
 
+/* Filtre du catalogue : masque les fiches hors domaine, sans re-rendu. */
+.catalogue[data-filtre="full-stack"] li[data-domaines]:not([data-domaines~="full-stack"]),
+.catalogue[data-filtre="devops"] li[data-domaines]:not([data-domaines~="devops"]),
+.catalogue[data-filtre="data"] li[data-domaines]:not([data-domaines~="data"]),
+.catalogue[data-filtre="automatisation-ia"] li[data-domaines]:not([data-domaines~="automatisation-ia"]) {
+  display: none;
+}
+
+.catalogue:not([data-filtre="tous"]) li[data-domaines] {
+  animation: lever 500ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Fondu d'une capture à l'autre dans une galerie. */
+@keyframes fondu {
+  from {
+    opacity: 0;
+  }
+}
+
+.fondu {
+  animation: fondu 350ms ease-out both;
+}
+
+/* Schéma de livraison : les liens se dessinent, les nœuds apparaissent. */
+@keyframes dessiner {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.trace-dessin {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: dessiner 600ms ease-in-out both;
+}
+
+@keyframes apparaitre {
+  from {
+    opacity: 0;
+  }
+}
+
+.noeud-apparition {
+  animation: apparaitre 450ms ease-out both;
+}
+
 .defile-discret {
   scrollbar-width: thin;
   scrollbar-color: var(--trait-fort) transparent;
@@ -355,6 +404,10 @@ a:focus-visible .lien,
 
   .trace-flux {
     animation: none;
+  }
+
+  .point-flux {
+    display: none;
   }
 
   [data-reveal] {
