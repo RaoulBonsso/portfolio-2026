@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
+import type { Statut } from "@/content/projects";
 
 /**
  * Un panneau = une section de la page.
  *
  * L'en-tête porte une étiquette monospace qui contient toujours une
  * information vraie (une source, un décompte, une date) plutôt qu'un
- * numéro d'ordre décoratif. Un numéro n'apprend rien ; « 6 dépôts,
- * source api.github.com » situe le lecteur.
+ * numéro d'ordre décoratif.
  */
 export function Panneau({
   id,
@@ -14,28 +14,24 @@ export function Panneau({
   etiquette,
   chapeau,
   children,
-  bordure = true,
 }: {
   id: string;
-  titre: string;
+  titre: ReactNode;
   etiquette: ReactNode;
   chapeau?: ReactNode;
   children: ReactNode;
-  bordure?: boolean;
 }) {
   return (
-    <section
-      id={id}
-      aria-labelledby={`${id}-titre`}
-      className={`relative py-16 sm:py-24 ${bordure ? "border-t border-trait" : ""}`}
-    >
+    <section id={id} aria-labelledby={`${id}-titre`} className="relative border-t border-trait py-20 sm:py-28">
       <header data-reveal className="mb-10 sm:mb-14">
-        <p className="etiquette mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">{etiquette}</p>
-        <h2 id={`${id}-titre`} className="titrage text-3xl sm:text-4xl md:text-[2.75rem]">
+        <p className="etiquette mb-4 flex flex-wrap items-center gap-x-3 gap-y-1 !text-methylene">
+          {etiquette}
+        </p>
+        <h2 id={`${id}-titre`} className="titrage max-w-4xl text-[2.1rem] sm:text-5xl md:text-[3.5rem]">
           {titre}
         </h2>
         {chapeau ? (
-          <div className="prose-technique mt-5 text-[1.0625rem] leading-relaxed text-graphite">
+          <div className="prose-technique mt-5 text-[1.0625rem] leading-relaxed text-graphite sm:text-lg">
             {chapeau}
           </div>
         ) : null}
@@ -48,26 +44,26 @@ export function Panneau({
 /** Petit séparateur monospace, pour composer les étiquettes. */
 export function Point() {
   return (
-    <span aria-hidden="true" className="text-trait-fort">
+    <span aria-hidden="true" className="opacity-60">
       ·
     </span>
   );
 }
 
 /** Pastille d'état. La couleur est sémantique, jamais décorative. */
-export function Etat({ valeur }: { valeur: "en ligne" | "livré" | "en cours" }) {
+export function Etat({ valeur }: { valeur: Statut }) {
   const style =
-    valeur === "en ligne"
+    valeur === "en ligne" || valeur === "en service"
       ? "text-libre border-libre/40"
-      : valeur === "livré"
+      : valeur === "non publié"
         ? "text-methylene border-methylene/40"
         : "text-ocre border-ocre/40";
 
   return (
     <span
-      className={`donnee inline-flex shrink-0 items-center gap-1.5 border px-2 py-0.5 text-[0.6875rem] tracking-wide uppercase ${style}`}
+      className={`donnee inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[0.6875rem] tracking-wide uppercase ${style}`}
     >
-      <span aria-hidden="true" className="h-1 w-1 rounded-full bg-current" />
+      <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
       {valeur}
     </span>
   );
