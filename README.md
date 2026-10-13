@@ -1,7 +1,8 @@
 # Portfolio — Raoul Bonsso
 
 Portfolio personnel, branché sur l'API GitHub en temps réel.
-Développeur full-stack en recherche d'alternance.
+Développeur full stack & DevOps (data, automatisation et IA pour PME), en recherche
+d'alternance dès novembre 2026 — rythme 1 semaine école / 3 semaines entreprise.
 
 **En ligne :** https://portfolio-2026-lake-iota.vercel.app
 
@@ -18,7 +19,15 @@ des choses vérifiables :
 - **La répartition des langages est calculée sur le volume réel de code** des
   dépôts publics — pas sur une liste de logos choisie pour faire bonne impression.
 - **Chaque chiffre cité sur un projet provient de son dépôt.** Les nombres de
-  tests annoncés ont été obtenus en exécutant les suites concernées.
+  tests annoncés ont été obtenus en exécutant les suites concernées (relevé du
+  13 octobre 2026). Le total affiché en haut de page est *calculé* depuis les
+  fiches (`lib/projets-select.ts`), jamais saisi à part.
+- **Les captures sont réelles.** Prises sur les sites en ligne (Playwright,
+  1440 × 900, webp < 200 Ko dans `public/projets/`). Un projet sans interface
+  publique montre un schéma de fonctionnement tiré de son README, et un dépôt
+  privé est annoncé comme tel.
+- **Les expériences reprennent le CV.** Formulées en apport et en résultat,
+  sans fait ni chiffre ajouté ; la page précise que ces résultats sont déclarés.
 - **Aucun fait de parcours n'est inventé.** Un champ non renseigné est masqué
   (voir « Champs à compléter » ci-dessous), jamais rempli d'une valeur plausible.
 
@@ -27,16 +36,21 @@ des choses vérifiables :
 ```
 src/
   app/
-    layout.tsx        polices, métadonnées, amorce du thème avant premier rendu
-    page.tsx          composant serveur, ISR horaire, assemble les sections
+    layout.tsx          polices, métadonnées, amorce du thème avant premier rendu
+    page.tsx            composant serveur, ISR horaire, JSON-LD, assemble les sections
+    opengraph-image.tsx carte de partage, chiffres calculés depuis le contenu
   lib/
-    github.ts         couche réseau — `server-only`, une requête GraphQL
-    github-select.ts  transformation pure des données (testée)
+    github.ts           couche réseau — `server-only`, une requête GraphQL
+    github-select.ts    transformation pure des données GitHub (testée)
+    projets-select.ts   filtres, comptages et indicateurs des projets (testée)
   content/
-    profile.ts        faits de profil, marqueur A_COMPLETER si inconnu
-    projects.ts       projets, chaque affirmation sourcée du dépôt
-    completude.ts     masque en production ce qui n'est pas renseigné
-  components/         sections, toutes en composant serveur sauf 4 îlots clients
+    profile.ts          positionnement, disponibilité, axes, principes
+    projects.ts         projets : problème, construit, preuves, captures
+    parcours.ts         expériences et formation, d'après le CV
+    completude.ts       masque en production ce qui n'est pas renseigné
+    contenu.test.ts     cohérence : captures présentes et < 200 Ko, liens, honnêteté
+  components/           sections serveur ; îlots clients : thème, révélations,
+                        schéma animé (motion), catalogue filtrable, galerie
 ```
 
 Deux règles structurent le découpage :
@@ -54,8 +68,8 @@ Deux règles structurent le découpage :
 ```bash
 npm install
 npm run dev          # http://localhost:3000
-npm test             # 27 tests, logique de sélection et de complétude
-npx tsc --noEmit     # vérification de types
+npm test             # 53 tests : sélection GitHub, projets, complétude, contenu
+npm run typecheck    # vérification de types
 npm run lint
 ```
 
@@ -79,13 +93,11 @@ dans `src/content/profile.ts`. Elles sont **masquées en production** et
 
 | Champ | Ce qu'il attend |
 |---|---|
-| `formation.periode` | Années du Master 1 (ex. `2025 – 2026`) |
-| `formation.specialite` | Intitulé exact de la spécialité |
-| `disponibilite.rythme` | Rythme de l'alternance (ex. `3 semaines / 1 semaine`) |
-| `disponibilite.debut` | Date de démarrage souhaitée |
-| `disponibilite.zone` | Zone géographique / mobilité |
-| `contact.linkedin` | URL du profil LinkedIn |
-| `contact.cv` | URL du CV en PDF |
+| `disponibilite.mobilite` | Mobilité au-delà de Nantes (le CV ne la précise pas) |
+
+Les autres champs (formation, rythme, début, LinkedIn, CV) sont renseignés
+depuis le CV d'octobre 2026. Le CV est servi par le site recruteur
+(`raoul-bonsso-alternance.vercel.app/cv-raoul-bonsso.pdf`).
 
 Renseigner un champ suffit à le faire apparaître sur la page.
 

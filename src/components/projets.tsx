@@ -1,141 +1,110 @@
-import { projets, type Projet } from "@/content/projects";
+import { ArrowUpRight, Hammer } from "lucide-react";
+import { autresProjets, chantiers, enConstruction, projets } from "@/content/projects";
+import { formaterNombre, indicateurs } from "@/lib/projets-select";
+import { CatalogueProjets } from "./catalogue-projets";
 import { Etat, Panneau, Point } from "./panneau";
 
 export function Projets() {
-  const vedettes = projets.filter((p) => p.vedette);
-  const autres = projets.filter((p) => !p.vedette);
+  const chiffres = indicateurs(projets);
 
   return (
     <Panneau
       id="projets"
-      titre="Ce que j'ai construit"
-      etiquette={
+      titre={
         <>
-          <span>{projets.length} projets retenus</span>
-          <Point />
-          <span>chaque affirmation est vérifiable dans le dépôt</span>
+          Ce que j&apos;ai construit, <span className="accent">et comment le vérifier</span>.
         </>
       }
+      etiquette={
+        <>
+          <span>{projets.length} projets détaillés</span>
+          <Point />
+          <span>{formaterNombre(chiffres.tests)} tests exécutés</span>
+          <Point />
+          <span>{chiffres.enLigne} démos en ligne</span>
+        </>
+      }
+      chapeau={
+        <p>
+          Pour chaque projet : le problème, ce qui a été construit, la pile, et les preuves. Les
+          captures viennent des sites en ligne ; un dépôt privé est signalé comme tel, et un projet
+          sans interface publique montre son fonctionnement plutôt qu&apos;une maquette.
+        </p>
+      }
     >
-      <div className="flex flex-col">
-        {vedettes.map((projet, i) => (
-          <CarteVedette key={projet.slug} projet={projet} rang={i} />
-        ))}
-      </div>
+      <CatalogueProjets projets={projets} />
 
-      <div className="mt-14 grid gap-px border border-trait bg-trait sm:grid-cols-2">
-        {autres.map((projet) => (
-          <CarteBreve key={projet.slug} projet={projet} />
-        ))}
-      </div>
+      <EnConstruction />
+      <AutresRealisations />
     </Panneau>
   );
 }
 
-function CarteVedette({ projet, rang }: { projet: Projet; rang: number }) {
+function EnConstruction() {
   return (
-    <article
-      data-reveal
-      data-reveal-retard={rang * 60}
-      className="grid gap-8 border-t border-trait py-10 first:border-t-0 first:pt-0 sm:py-14 lg:grid-cols-12 lg:gap-10"
-    >
-      <div className="lg:col-span-4">
-        <div className="flex flex-wrap items-center gap-3">
-          <h3 className="titrage text-2xl sm:text-[1.75rem]">{projet.nom}</h3>
-          <Etat valeur={projet.statut} />
+    <div data-reveal className="carte mt-6 flex flex-col gap-4 border-dashed p-6 sm:flex-row sm:items-center sm:p-8">
+      <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-plan-2 text-ocre">
+        <Hammer aria-hidden="true" className="size-5" />
+      </span>
+      <div className="flex-1">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <h3 className="titrage text-2xl">{enConstruction.nom}</h3>
+          <Etat valeur={enConstruction.statut} />
         </div>
-
-        <dl className="mt-6 flex flex-col gap-2.5">
-          {projet.faits.map(({ cle, valeur }) => (
-            <div key={cle} className="flex flex-col gap-0.5 sm:flex-row sm:gap-3">
-              <dt className="etiquette shrink-0 sm:w-[9.5rem] sm:pt-0.5">{cle}</dt>
-              <dd className="donnee text-[0.8125rem] leading-snug text-carbone">{valeur}</dd>
-            </div>
-          ))}
-        </dl>
-
-        <div className="mt-7 flex flex-wrap items-center gap-x-4 gap-y-2">
-          {projet.liens.map((lien) => (
-            <a
-              key={lien.href}
-              href={lien.href}
-              target="_blank"
-              rel="noreferrer"
-              className={`donnee inline-flex items-center gap-2 text-[0.8125rem] ${
-                lien.primaire ? "text-methylene" : "text-graphite"
-              }`}
-            >
-              <span className="lien">{lien.libelle}</span>
-              <span aria-hidden="true" className="text-[0.6875rem]">
-                ↗
-              </span>
-            </a>
-          ))}
-        </div>
+        <p className="mt-2 leading-relaxed text-graphite">{enConstruction.description}</p>
       </div>
+    </div>
+  );
+}
 
-      <div className="lg:col-span-8">
-        <p className="text-[1.1875rem] leading-[1.55] text-carbone sm:text-[1.3125rem]">
-          {projet.resume}
-        </p>
-        <p className="mt-5 max-w-[62ch] leading-[1.72] text-graphite">{projet.detail}</p>
-        <ul className="mt-7 flex flex-wrap gap-x-2 gap-y-2">
-          {projet.pile.map((outil) => (
-            <li
-              key={outil}
-              className="donnee border border-trait px-2 py-1 text-[0.75rem] text-graphite"
-            >
-              {outil}
+/** Le reste du parcours, en format court : réalisations antérieures et bibliothèques écrites de zéro. */
+function AutresRealisations() {
+  return (
+    <div className="mt-20 grid gap-12 lg:grid-cols-2 lg:gap-16">
+      <div data-reveal>
+        <h3 className="etiquette mb-5">Réalisations antérieures</h3>
+        <ul className="border-t border-trait">
+          {autresProjets.map((p) => (
+            <li key={p.nom} className="border-b border-trait py-5">
+              <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                <span className="titrage text-xl">{p.nom}</span>
+                <span className="donnee text-[0.75rem] text-graphite">{p.pile}</span>
+              </div>
+              <p className="mt-1.5 leading-relaxed text-graphite">{p.resume}</p>
+              {p.lien ? (
+                <a
+                  href={p.lien.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="interface mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-methylene"
+                >
+                  <span className="lien">{p.lien.libelle}</span>
+                  <ArrowUpRight aria-hidden="true" className="size-3.5" />
+                  <span className="sr-only"> (nouvel onglet)</span>
+                </a>
+              ) : null}
             </li>
           ))}
         </ul>
       </div>
-    </article>
-  );
-}
 
-function CarteBreve({ projet }: { projet: Projet }) {
-  const principal = projet.liens.find((l) => l.primaire) ?? projet.liens[0];
-
-  return (
-    <article data-reveal className="flex flex-col bg-papier p-6 sm:p-8">
-      <div className="flex flex-wrap items-center gap-3">
-        <h3 className="titrage text-xl">{projet.nom}</h3>
-        <Etat valeur={projet.statut} />
+      <div data-reveal data-reveal-retard={80}>
+        <h3 className="etiquette mb-5">Écrits pour comprendre · zéro dépendance runtime</h3>
+        <ul className="border-t border-trait">
+          {chantiers.map((c) => (
+            <li key={c.nom} className="border-b border-trait py-5">
+              <div className="flex items-baseline justify-between gap-4">
+                <span className="donnee text-[0.9375rem] font-medium">{c.nom}</span>
+                <span className="etiquette">{c.langage}</span>
+              </div>
+              <p className="mt-1.5 leading-relaxed text-graphite">{c.description}</p>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-4 text-[0.9375rem] leading-relaxed text-graphite">
+          Dépôts locaux, non publiés : je les présente volontiers en entretien, code à l&apos;écran.
+        </p>
       </div>
-
-      <p className="mt-4 leading-relaxed text-graphite">{projet.resume}</p>
-
-      <dl className="mt-5 flex flex-col gap-1.5">
-        {projet.faits.map(({ cle, valeur }) => (
-          <div key={cle} className="flex flex-wrap gap-x-3">
-            <dt className="etiquette w-[8.5rem] shrink-0 pt-0.5">{cle}</dt>
-            <dd className="donnee text-[0.8125rem] text-carbone">{valeur}</dd>
-          </div>
-        ))}
-      </dl>
-
-      <ul className="mt-5 flex flex-wrap gap-1.5">
-        {projet.pile.map((outil) => (
-          <li key={outil} className="donnee text-[0.75rem] text-graphite">
-            {outil}
-          </li>
-        ))}
-      </ul>
-
-      {principal ? (
-        <a
-          href={principal.href}
-          target="_blank"
-          rel="noreferrer"
-          className="donnee mt-auto inline-flex items-center gap-2 pt-7 text-[0.8125rem] text-methylene"
-        >
-          <span className="lien">{principal.libelle}</span>
-          <span aria-hidden="true" className="text-[0.6875rem]">
-            ↗
-          </span>
-        </a>
-      ) : null}
-    </article>
+    </div>
   );
 }

@@ -68,7 +68,7 @@ export function BasculeTheme() {
       onClick={basculer}
       aria-label={sombre ? "Passer en thème clair" : "Passer en thème sombre"}
       title={sombre ? "Thème clair" : "Thème sombre"}
-      className="group inline-flex h-8 w-8 items-center justify-center border border-trait text-graphite transition-colors hover:border-trait-fort hover:text-carbone"
+      className="group inline-flex h-9 w-9 items-center justify-center rounded-lg border border-trait text-graphite transition-colors hover:border-trait-fort hover:bg-plan-2 hover:text-carbone"
     >
       <span className="sr-only">{sombre ? "Thème clair" : "Thème sombre"}</span>
       <svg

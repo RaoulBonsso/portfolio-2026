@@ -1,12 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, JetBrains_Mono, Newsreader } from "next/font/google";
+import { DESCRIPTION, SITE, TITRE } from "@/lib/site";
 import "./globals.css";
 
 /**
  * Trois rôles, trois familles.
- * Archivo — grotesque de signalétique, pour le titrage.
- * Newsreader — sérif de lecture, pour le corps : la page doit se lire
- *   comme un document, pas comme une page d'atterrissage.
+ * Archivo — grotesque de signalétique, pour le titrage et l'interface.
+ * Newsreader — sérif de lecture, pour le corps et l'accent italique des
+ *   titres : la page doit se lire comme un document.
  * JetBrains Mono — chiffres et étiquettes, chasse fixe pour aligner
  *   les colonnes de données.
  */
@@ -20,7 +21,7 @@ const display = Archivo({
 const serif = Newsreader({
   variable: "--police-serif",
   subsets: ["latin"],
-  weight: ["300", "400", "500"],
+  weight: ["400", "500"],
   style: ["normal", "italic"],
   display: "swap",
 });
@@ -32,54 +33,47 @@ const mono = JetBrains_Mono({
   display: "swap",
 });
 
-/**
- * URL de production réelle. Elle sert de base à `metadataBase` : sans elle,
- * les URL Open Graph et canoniques seraient relatives, donc inexploitables
- * par LinkedIn ou par un aperçu de lien.
- */
-const SITE = "https://portfolio-2026-lake-iota.vercel.app";
-
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
-  title: {
-    default: "Raoul Bonsso — Développeur full-stack",
-    template: "%s · Raoul Bonsso",
-  },
-  description:
-    "Développeur full-stack en recherche d'alternance. API contractuelles, applications mobiles Expo, systèmes distribués. Projets et activité GitHub en direct.",
+  title: { default: TITRE, template: "%s · Raoul Bonsso" },
+  description: DESCRIPTION,
   keywords: [
-    "développeur full-stack",
-    "alternance",
+    "alternance développeur full stack",
+    "alternance DevOps",
+    "alternance Nantes",
+    "développeur full stack",
+    "DevOps",
+    "data",
+    "automatisation n8n",
     "Next.js",
-    "React Native",
-    "Expo",
     "TypeScript",
     "Python",
-    "Rust",
-    "OpenAPI",
+    "Docker",
   ],
   authors: [{ name: "Raoul Bonsso", url: "https://github.com/RaoulBonsso" }],
+  alternates: { canonical: "/" },
   openGraph: {
     type: "profile",
     locale: "fr_FR",
-    title: "Raoul Bonsso — Développeur full-stack",
+    url: "/",
+    title: TITRE,
     description:
-      "API contractuelles, applications mobiles, systèmes distribués. En recherche d'alternance.",
+      "Alternance dès novembre 2026, 1 semaine école / 3 semaines entreprise. Applications web, API, DevOps, données et automatisations IA pour PME.",
     siteName: "Raoul Bonsso",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Raoul Bonsso — Développeur full-stack",
+    title: TITRE,
     description:
-      "API contractuelles, applications mobiles, systèmes distribués. En recherche d'alternance.",
+      "Alternance dès novembre 2026. Applications web, API, DevOps, données et automatisations IA pour PME.",
   },
   robots: { index: true, follow: true },
 };
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#e9e8e2" },
-    { media: "(prefers-color-scheme: dark)", color: "#0e1216" },
+    { media: "(prefers-color-scheme: light)", color: "#ebeae4" },
+    { media: "(prefers-color-scheme: dark)", color: "#0c1014" },
   ],
 };
 
@@ -99,10 +93,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <script dangerouslySetInnerHTML={{ __html: AMORCE_THEME }} />
       </head>
-      <body className="min-h-full">
-        <div className="trame" aria-hidden="true" />
-        {children}
-      </body>
+      <body className="min-h-full">{children}</body>
     </html>
   );
 }
