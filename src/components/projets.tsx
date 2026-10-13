@@ -1,11 +1,18 @@
 import { ArrowUpRight, Hammer } from "lucide-react";
-import { autresProjets, chantiers, enConstruction, projets } from "@/content/projects";
-import { formaterNombre, indicateurs } from "@/lib/projets-select";
-import { CatalogueProjets } from "./catalogue-projets";
+import { DOMAINES, autresProjets, chantiers, enConstruction, projets } from "@/content/projects";
+import { compterParDomaine, formaterNombre, indicateurs, type Filtre } from "@/lib/projets-select";
+import { CarteProjet } from "./carte-projet";
+import { FiltreProjets, type OptionFiltre } from "./filtre-projets";
 import { Etat, Panneau, Point } from "./panneau";
 
 export function Projets() {
   const chiffres = indicateurs(projets);
+  const comptes = compterParDomaine(projets);
+  const bases: { id: Filtre; libelle: string }[] = [{ id: "tous", libelle: "Tous" }, ...DOMAINES];
+  const options: OptionFiltre[] = bases.map((o) => ({
+    ...o,
+    compte: comptes[o.id],
+  }));
 
   return (
     <Panneau
@@ -32,7 +39,19 @@ export function Projets() {
         </p>
       }
     >
-      <CatalogueProjets projets={projets} />
+      <FiltreProjets options={options}>
+        <ol className="mt-10 flex flex-col">
+          {projets.map((projet, i) => (
+            <li
+              key={projet.slug}
+              data-domaines={projet.domaines.join(" ")}
+              className="border-t border-trait py-12 first:border-t-0 first:pt-2 sm:py-16"
+            >
+              <CarteProjet projet={projet} inverse={i % 2 === 1} prioritaire={false} />
+            </li>
+          ))}
+        </ol>
+      </FiltreProjets>
 
       <EnConstruction />
       <AutresRealisations />

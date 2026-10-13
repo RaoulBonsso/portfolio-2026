@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { AnimatePresence, m, useReducedMotion } from "motion/react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import type { Capture } from "@/content/projects";
@@ -24,7 +23,6 @@ export function Galerie({
   prioritaire?: boolean;
 }) {
   const [courante, setCourante] = useState(0);
-  const reduit = useReducedMotion();
   const capture = captures[courante];
   const plusieurs = captures.length > 1;
 
@@ -59,25 +57,16 @@ export function Galerie({
         </div>
 
         <div className="relative aspect-[16/10] bg-plan-2">
-          <AnimatePresence initial={false}>
-            <m.div
-              key={capture.src}
-              className="absolute inset-0"
-              initial={reduit ? false : { opacity: 0, scale: 1.015 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.35, ease: [0.2, 0.8, 0.2, 1] }}
-            >
-              <Image
-                src={capture.src}
-                alt={capture.alt}
-                fill
-                sizes="(min-width: 1152px) 640px, (min-width: 1024px) 56vw, 100vw"
-                className="object-cover object-top"
-                priority={prioritaire && courante === 0}
-              />
-            </m.div>
-          </AnimatePresence>
+          <div key={capture.src} className="fondu absolute inset-0">
+            <Image
+              src={capture.src}
+              alt={capture.alt}
+              fill
+              sizes="(min-width: 1152px) 640px, (min-width: 1024px) 56vw, 100vw"
+              className="object-cover object-top"
+              priority={prioritaire && courante === 0}
+            />
+          </div>
         </div>
       </div>
 

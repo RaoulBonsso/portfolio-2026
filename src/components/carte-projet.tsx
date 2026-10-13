@@ -1,82 +1,20 @@
-"use client";
-
-import { AnimatePresence, LazyMotion, domAnimation, m, useReducedMotion } from "motion/react";
 import { ArrowUpRight, Check, Lock } from "lucide-react";
-import { useState } from "react";
-import { DOMAINES, type Projet } from "@/content/projects";
-import { compterParDomaine, filtrerParDomaine, type Filtre } from "@/lib/projets-select";
+import type { Projet } from "@/content/projects";
 import { Galerie } from "./galerie";
 import { Etat } from "./panneau";
 import { SchemaProjet } from "./schema-projet";
 
 /**
- * Catalogue filtrable. Le filtre est un état d'interface pur : toutes les
- * fiches sont rendues côté serveur au premier affichage (filtre « tous »),
- * donc la page reste lisible et indexable sans JavaScript.
+ * Fiche d'un projet — composant serveur. Seule la galerie est un îlot
+ * client : le texte, les preuves et les liens arrivent en HTML pur.
  */
-export function CatalogueProjets({ projets }: { projets: Projet[] }) {
-  const [filtre, setFiltre] = useState<Filtre>("tous");
-  const reduit = useReducedMotion();
-  const comptes = compterParDomaine(projets);
-  const visibles = filtrerParDomaine(projets, filtre);
-  const options: { id: Filtre; libelle: string }[] = [{ id: "tous", libelle: "Tous" }, ...DOMAINES];
-
-  return (
-    <LazyMotion features={domAnimation} strict>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div role="group" aria-label="Filtrer les projets par domaine" className="flex flex-wrap gap-2">
-          {options.map(({ id, libelle }) => {
-            const actif = filtre === id;
-            return (
-              <button
-                key={id}
-                type="button"
-                aria-pressed={actif}
-                onClick={() => setFiltre(id)}
-                className={`interface inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
-                  actif
-                    ? "border-carbone bg-carbone text-papier"
-                    : "border-trait-fort text-graphite hover:border-carbone hover:text-carbone"
-                }`}
-              >
-                {libelle}
-                <span className={`donnee text-[0.6875rem] ${actif ? "opacity-80" : ""}`}>{comptes[id]}</span>
-              </button>
-            );
-          })}
-        </div>
-        <p className="etiquette" aria-live="polite">
-          {visibles.length} projet{visibles.length > 1 ? "s" : ""} affiché{visibles.length > 1 ? "s" : ""}
-        </p>
-      </div>
-
-      <ol className="mt-10 flex flex-col">
-        <AnimatePresence initial={false} mode="popLayout">
-          {visibles.map((projet, i) => (
-            <m.li
-              key={projet.slug}
-              initial={reduit ? false : { opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={reduit ? undefined : { opacity: 0, transition: { duration: 0.15 } }}
-              transition={{ duration: 0.45, ease: [0.2, 0.8, 0.2, 1] }}
-              className="border-t border-trait py-12 first:border-t-0 first:pt-2 sm:py-16"
-            >
-              <CarteProjet projet={projet} inverse={i % 2 === 1} prioritaire={i === 0 && filtre === "tous"} />
-            </m.li>
-          ))}
-        </AnimatePresence>
-      </ol>
-    </LazyMotion>
-  );
-}
-
 function adresseDe(projet: Projet): string {
   const principal = projet.liens.find((l) => l.primaire) ?? projet.liens[0];
   if (principal) return principal.href.replace(/^https:\/\//, "");
   return "localhost — build de production";
 }
 
-function CarteProjet({ projet, inverse, prioritaire }: { projet: Projet; inverse: boolean; prioritaire: boolean }) {
+export function CarteProjet({ projet, inverse, prioritaire }: { projet: Projet; inverse: boolean; prioritaire: boolean }) {
   return (
     <article id={`projet-${projet.slug}`} aria-labelledby={`projet-${projet.slug}-titre`} className="grid scroll-mt-24 grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-12">
       <div className={`min-w-0 lg:col-span-7 ${inverse ? "lg:order-2" : ""}`}>

@@ -136,7 +136,7 @@ export function PiedDePage() {
           {profile.nom} · {new Date().getFullYear()}
         </p>
         <p className="etiquette !tracking-[0.08em]">
-          Next.js 16 · TypeScript · Tailwind CSS 4 · motion · données GitHub rendues côté serveur
+          Next.js 16 · TypeScript · Tailwind CSS 4 · données GitHub rendues côté serveur
         </p>
       </div>
     </footer>

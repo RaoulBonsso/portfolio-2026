@@ -50,7 +50,7 @@ src/
     completude.ts       masque en production ce qui n'est pas renseigné
     contenu.test.ts     cohérence : captures présentes et < 200 Ko, liens, honnêteté
   components/           sections serveur ; îlots clients : thème, révélations,
-                        schéma animé (motion), catalogue filtrable, galerie
+                        schéma animé (CSS + SVG), catalogue filtrable, galerie
 ```
 
 Deux règles structurent le découpage :
