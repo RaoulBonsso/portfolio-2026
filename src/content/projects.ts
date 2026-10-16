@@ -100,6 +100,49 @@ export const projets: Projet[] = [
     note: "Dépôt privé : les workflows complets font partie d'une offre. Code montré volontiers en entretien.",
   },
   {
+    slug: "rampe",
+    nom: "Rampe",
+    accroche: "Une CI sérieuse sur chaque dépôt en une commande : qualité, secrets, failles des dépendances, déploiement avec retour arrière.",
+    probleme:
+      "Sur 50 dépôts, 7 avaient une CI. Copier un fichier de pipeline de projet en projet, c'est corriger la même faille cinquante fois, ou jamais ; et des tests écrits pour l'émulateur Firestore n'avaient jamais tourné faute du bon JDK sur le poste.",
+    construit: [
+      "Cinq workflows GitHub Actions réutilisables : qualité Node (Java 21 et émulateurs Firebase en option, Playwright), qualité Python (uv, Ruff, pytest), sécurité, déploiement VPS, appel du garde-fou n8n.",
+      "Sécurité : gitleaks ne scanne que les nouveaux commits (l'historique d'un vieux projet ne bloque pas, une nouvelle fuite si), osv-scanner lit tous les lockfiles ; outils épinglés lancés en conteneur, aucune action tierce n'a accès au code.",
+      "Déploiement VPS par SSH avec hôte vérifié, contrôle de santé HTTP et retour automatique au commit précédent si la santé ne revient pas.",
+      "Un installeur lit le dépôt (pile, scripts présents, émulateurs, tests E2E) et écrit un ci.yml d'une dizaine de lignes ; mode autonome pour les dépôts publics.",
+      "Site vitrine Next.js 16 : un pipeline animé rejoue un déploiement sain, puis une santé KO et son retour arrière.",
+    ],
+    preuves: [
+      { cle: "Tests", valeur: "26 : installeur (20) et site (6), plus actionlint et shellcheck en CI" },
+      { cle: "Adoption", valeur: "8 dépôts branchés le premier jour, CI verte" },
+      { cle: "Effet", valeur: "28 tests d'émulateur Firestore exécutés pour la première fois, et passés" },
+    ],
+    pile: ["GitHub Actions", "Bash", "Docker", "gitleaks", "osv-scanner", "Next.js 16", "Tailwind CSS 4", "Vitest"],
+    domaines: ["devops"],
+    statut: "en service",
+    code: "privé",
+    tests: 26,
+    liens: [],
+    captures: [
+      {
+        src: "/projets/rampe-accueil.webp",
+        alt: "Accueil de Rampe : titre « Une CI sérieuse sur chaque dépôt. En une commande. » et pipeline animé checkout, qualité, sécurité, déploiement, santé.",
+        legende: "Le pipeline du hero rejoue un déploiement sain.",
+      },
+      {
+        src: "/projets/rampe-rollback.webp",
+        alt: "Journal du pipeline : santé en HTTP 502, retour arrière vers le commit précédent, puis prod rétablie.",
+        legende: "Puis une santé KO : retour arrière automatique, prod rétablie.",
+      },
+      {
+        src: "/projets/rampe-workflows.webp",
+        alt: "Les cinq workflows réutilisables présentés en cartes : qualité Node, qualité Python, secrets et failles, déploiement VPS, garde-fou n8n.",
+        legende: "Les cinq briques, appelées avec uses:.",
+      },
+    ],
+    note: "Captures prises en local : le site n'est pas encore publié. Dépôt privé, montré volontiers en entretien.",
+  },
+  {
     slug: "aiguillage",
     nom: "Aiguillage",
     accroche:
