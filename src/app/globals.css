@@ -1,26 +1,417 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ==========================================================================
+   Système de jetons — « plan technique »
+   Registre : papier grège, encre carbone, bleu de méthylène, ocre de repère.
+   Les composants ne stylent JAMAIS à l'intérieur d'une media query de thème :
+   ils passent par les jetons, redéfinis trois fois (préférence système,
+   puis les deux valeurs explicites du sélecteur de thème).
+   Contrastes vérifiés : texte courant ≥ 7:1, texte secondaire et états ≥ 4.5:1.
+   ========================================================================== */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root {
+  color-scheme: light;
+
+  --papier: #ebeae4;
+  --plan: #f6f5f1;
+  --plan-2: #e2e1d9;
+  --carbone: #14181b;
+  --graphite: #4f5862;
+  --trait: #d3d2c9;
+  --trait-fort: #aeada2;
+  --methylene: #1a5b7a;
+  --methylene-doux: #d7e4eb;
+  --ocre: #84581c;
+  --libre: #26664a;
+
+  --halo-a: rgb(26 91 122 / 0.14);
+  --halo-b: rgb(154 106 36 / 0.1);
+  --point: rgb(20 24 27 / 0.09);
+  --ombre: 0 1px 0 rgb(255 255 255 / 0.6) inset, 0 24px 60px -32px rgb(20 24 27 / 0.35);
+
+  --grille-0: #dedcd3;
+  --grille-1: #b9cdd8;
+  --grille-2: #85adc1;
+  --grille-3: #4a86a2;
+  --grille-4: #1a5b7a;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --papier: #0c1014;
+    --plan: #12181e;
+    --plan-2: #182029;
+    --carbone: #e6eaec;
+    --graphite: #8f99a3;
+    --trait: #212a32;
+    --trait-fort: #34404b;
+    --methylene: #74bde2;
+    --methylene-doux: #122f3d;
+    --ocre: #dba75a;
+    --libre: #55c093;
+
+    --halo-a: rgb(116 189 226 / 0.13);
+    --halo-b: rgb(219 167 90 / 0.08);
+    --point: rgb(255 255 255 / 0.06);
+    --ombre: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 30px 70px -36px rgb(0 0 0 / 0.8);
+
+    --grille-0: #1a2128;
+    --grille-1: #234a5e;
+    --grille-2: #2f7194;
+    --grille-3: #4b9ac0;
+    --grille-4: #7ec4e6;
   }
 }
 
+/* Le sélecteur explicite du basculeur gagne dans les deux sens. */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --papier: #ebeae4;
+  --plan: #f6f5f1;
+  --plan-2: #e2e1d9;
+  --carbone: #14181b;
+  --graphite: #4f5862;
+  --trait: #d3d2c9;
+  --trait-fort: #aeada2;
+  --methylene: #1a5b7a;
+  --methylene-doux: #d7e4eb;
+  --ocre: #84581c;
+  --libre: #26664a;
+
+  --halo-a: rgb(26 91 122 / 0.14);
+  --halo-b: rgb(154 106 36 / 0.1);
+  --point: rgb(20 24 27 / 0.09);
+  --ombre: 0 1px 0 rgb(255 255 255 / 0.6) inset, 0 24px 60px -32px rgb(20 24 27 / 0.35);
+
+  --grille-0: #dedcd3;
+  --grille-1: #b9cdd8;
+  --grille-2: #85adc1;
+  --grille-3: #4a86a2;
+  --grille-4: #1a5b7a;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --papier: #0c1014;
+  --plan: #12181e;
+  --plan-2: #182029;
+  --carbone: #e6eaec;
+  --graphite: #8f99a3;
+  --trait: #212a32;
+  --trait-fort: #34404b;
+  --methylene: #74bde2;
+  --methylene-doux: #122f3d;
+  --ocre: #dba75a;
+  --libre: #55c093;
+
+  --halo-a: rgb(116 189 226 / 0.13);
+  --halo-b: rgb(219 167 90 / 0.08);
+  --point: rgb(255 255 255 / 0.06);
+  --ombre: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 30px 70px -36px rgb(0 0 0 / 0.8);
+
+  --grille-0: #1a2128;
+  --grille-1: #234a5e;
+  --grille-2: #2f7194;
+  --grille-3: #4b9ac0;
+  --grille-4: #7ec4e6;
+}
+
+@theme inline {
+  --color-papier: var(--papier);
+  --color-plan: var(--plan);
+  --color-plan-2: var(--plan-2);
+  --color-carbone: var(--carbone);
+  --color-graphite: var(--graphite);
+  --color-trait: var(--trait);
+  --color-trait-fort: var(--trait-fort);
+  --color-methylene: var(--methylene);
+  --color-methylene-doux: var(--methylene-doux);
+  --color-ocre: var(--ocre);
+  --color-libre: var(--libre);
+
+  --font-display: var(--police-display), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--police-serif), ui-serif, Georgia, serif;
+  --font-mono: var(--police-mono), ui-monospace, SFMono-Regular, monospace;
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--papier);
+  color: var(--carbone);
+  font-family: var(--police-serif), ui-serif, Georgia, serif;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Trame millimétrée très faible : le fond d'un plan, pas un motif décoratif. */
+.trame {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 110vh;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, var(--trait) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--trait) 1px, transparent 1px);
+  background-size: 96px 96px;
+  opacity: 0.5;
+  mask-image: radial-gradient(ellipse 100% 70% at 50% 0%, black, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 100% 70% at 50% 0%, black, transparent 80%);
+}
+
+/* Deux halos, méthylène et ocre : de la profondeur sans image à charger. */
+.halo {
+  background:
+    radial-gradient(55% 45% at 12% 0%, var(--halo-a), transparent 70%),
+    radial-gradient(45% 40% at 92% 6%, var(--halo-b), transparent 70%);
+}
+
+.grille-points {
+  background-image: radial-gradient(var(--point) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.carte {
+  background-color: var(--plan);
+  border: 1px solid var(--trait);
+  border-radius: 1.25rem;
+  box-shadow: var(--ombre);
+}
+
+::selection {
+  background-color: var(--methylene);
+  color: var(--papier);
+}
+
+:focus-visible {
+  outline: 2px solid var(--methylene);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   Rôles typographiques
+   ========================================================================== */
+
+.titrage {
+  font-family: var(--police-display), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+  line-height: 1.02;
+}
+
+/* L'accent d'un titre : la sérif italique, en méthylène. */
+.accent {
+  font-family: var(--police-serif), ui-serif, Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--methylene);
+}
+
+.etiquette {
+  font-family: var(--police-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--graphite);
+}
+
+.donnee {
+  font-family: var(--police-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.interface {
+  font-family: var(--police-display), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.prose-technique {
+  max-width: 64ch;
+}
+
+/* ==========================================================================
+   Lien : le soulignement se dessine au survol, il ne s'allume pas.
+   ========================================================================== */
+
+.lien {
+  color: inherit;
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1px;
+  transition: background-size 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+a:hover .lien,
+a:focus-visible .lien,
+.lien:hover,
+.lien:focus-visible {
+  background-size: 100% 1px;
+}
+
+/* ==========================================================================
+   Mouvement
+   ========================================================================== */
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 700ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 700ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+[data-reveal="vu"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Sans JavaScript, rien ne doit rester invisible. */
+@media (scripting: none) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes lever {
+  from {
+    opacity: 0;
+    transform: translateY(0.4em);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.lever {
+  animation: lever 950ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes pulsation {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.pulsation {
+  animation: pulsation 2.4s ease-in-out infinite;
+}
+
+@keyframes flux {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+.trace-flux {
+  stroke-dasharray: 5 7;
+  animation: flux 1.2s linear infinite;
+}
+
+/* Filtre du catalogue : masque les fiches hors domaine, sans re-rendu. */
+.catalogue[data-filtre="full-stack"] li[data-domaines]:not([data-domaines~="full-stack"]),
+.catalogue[data-filtre="devops"] li[data-domaines]:not([data-domaines~="devops"]),
+.catalogue[data-filtre="data"] li[data-domaines]:not([data-domaines~="data"]),
+.catalogue[data-filtre="automatisation-ia"] li[data-domaines]:not([data-domaines~="automatisation-ia"]) {
+  display: none;
+}
+
+.catalogue:not([data-filtre="tous"]) li[data-domaines] {
+  animation: lever 500ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Fondu d'une capture à l'autre dans une galerie. */
+@keyframes fondu {
+  from {
+    opacity: 0;
+  }
+}
+
+.fondu {
+  animation: fondu 350ms ease-out both;
+}
+
+/* Schéma de livraison : les liens se dessinent, les nœuds apparaissent. */
+@keyframes dessiner {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.trace-dessin {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: dessiner 600ms ease-in-out both;
+}
+
+@keyframes apparaitre {
+  from {
+    opacity: 0;
+  }
+}
+
+.noeud-apparition {
+  animation: apparaitre 450ms ease-out both;
+}
+
+.defile-discret {
+  scrollbar-width: thin;
+  scrollbar-color: var(--trait-fort) transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .trace-flux {
+    animation: none;
+  }
+
+  .point-flux {
+    display: none;
+  }
+
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
 }
