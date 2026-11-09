@@ -1,36 +1,106 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Portfolio — Raoul Bonsso
 
-## Getting Started
+Portfolio personnel, branché sur l'API GitHub en temps réel.
+Développeur full stack & DevOps (data, automatisation et IA pour PME), en recherche
+d'alternance dès novembre 2026 — rythme 1 semaine école / 3 semaines entreprise.
 
-First, run the development server:
+**En ligne :** https://portfolio-2026-lake-iota.vercel.app
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## Le parti pris
+
+Un portfolio peut affirmer n'importe quoi. Celui-ci essaie de n'afficher que
+des choses vérifiables :
+
+- **Les chiffres viennent de l'API GitHub**, pas d'un fichier de configuration.
+  Contributions, commits, pull requests, répartition des langages et calendrier
+  d'activité sont relus toutes les heures depuis `api.github.com/graphql`.
+- **La répartition des langages est calculée sur le volume réel de code** des
+  dépôts publics — pas sur une liste de logos choisie pour faire bonne impression.
+- **Chaque chiffre cité sur un projet provient de son dépôt.** Les nombres de
+  tests annoncés ont été obtenus en exécutant les suites concernées (relevé du
+  13 octobre 2026). Le total affiché en haut de page est *calculé* depuis les
+  fiches (`lib/projets-select.ts`), jamais saisi à part.
+- **Les captures sont réelles.** Prises sur les sites en ligne (Playwright,
+  1440 × 900, webp < 200 Ko dans `public/projets/`). Un projet sans interface
+  publique montre un schéma de fonctionnement tiré de son README, et un dépôt
+  privé est annoncé comme tel.
+- **Les expériences reprennent le CV.** Formulées en apport et en résultat,
+  sans fait ni chiffre ajouté ; la page précise que ces résultats sont déclarés.
+- **Aucun fait de parcours n'est inventé.** Un champ non renseigné est masqué
+  (voir « Champs à compléter » ci-dessous), jamais rempli d'une valeur plausible.
+
+## Architecture
+
+```
+src/
+  app/
+    layout.tsx          polices, métadonnées, amorce du thème avant premier rendu
+    page.tsx            composant serveur, ISR horaire, JSON-LD, assemble les sections
+    opengraph-image.tsx carte de partage, chiffres calculés depuis le contenu
+  lib/
+    github.ts           couche réseau — `server-only`, une requête GraphQL
+    github-select.ts    transformation pure des données GitHub (testée)
+    projets-select.ts   filtres, comptages et indicateurs des projets (testée)
+  content/
+    profile.ts          positionnement, disponibilité, axes, principes
+    projects.ts         projets : problème, construit, preuves, captures
+    parcours.ts         expériences et formation, d'après le CV
+    completude.ts       masque en production ce qui n'est pas renseigné
+    contenu.test.ts     cohérence : captures présentes et < 200 Ko, liens, honnêteté
+  components/           sections serveur ; îlots clients : thème, révélations,
+                        schéma animé (CSS + SVG), catalogue filtrable, galerie
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Deux règles structurent le découpage :
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Ce qui décide *quoi montrer* est séparé de ce qui *va chercher*.** La
+   sélection des dépôts, l'agrégation des langages et la construction du
+   calendrier sont des fonctions pures — donc testables sans réseau. La couche
+   réseau reste bête.
+2. **Le jeton ne quitte jamais le serveur.** `lib/github.ts` importe
+   `server-only` : une importation depuis un composant client fait échouer la
+   compilation. C'est une garantie du compilateur, pas une convention d'équipe.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Développement
 
-## Learn More
+```bash
+npm install
+npm run dev          # http://localhost:3000
+npm test             # 53 tests : sélection GitHub, projets, complétude, contenu
+npm run typecheck    # vérification de types
+npm run lint
+```
 
-To learn more about Next.js, take a look at the following resources:
+### Variable d'environnement
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Une seule, et elle est optionnelle en local :
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+GITHUB_TOKEN=...     # jeton GitHub à portée lecture publique
+```
 
-## Deploy on Vercel
+Sans elle, la page s'affiche et la section GitHub se replie proprement sur un
+état « flux indisponible » — elle ne plante pas. Le jeton n'est jamais commité :
+`.gitignore` couvre `.env*`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Champs à compléter
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Les informations de parcours non confirmées portent le marqueur `A_COMPLETER`
+dans `src/content/profile.ts`. Elles sont **masquées en production** et
+**listées en développement** dans un panneau d'audit en bas de page.
+
+| Champ | Ce qu'il attend |
+|---|---|
+| `disponibilite.mobilite` | Mobilité au-delà de Nantes (le CV ne la précise pas) |
+
+Les autres champs (formation, rythme, début, LinkedIn, CV) sont renseignés
+depuis le CV d'octobre 2026. Le CV est servi par le site recruteur
+(`raoul-bonsso-alternance.vercel.app/cv-raoul-bonsso.pdf`).
+
+Renseigner un champ suffit à le faire apparaître sur la page.
+
+## Licence
+
+MIT
